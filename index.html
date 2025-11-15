@@ -1,21 +1,80 @@
+
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>IFX ∞ InfinichainX</title>
-    <style>
-      body { margin:0; background:#000; color:#0ff; font-family:system-ui,-apple-system,sans-serif; }
-      #root { min-height:100vh; }
-    </style>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module">
-      import React from 'https://esm.sh/react@18.3.0'
-      import ReactDOM from 'https://esm.sh/react-dom@18.3.0/client'
-      import App from './src/App.jsx'
-      ReactDOM.createRoot(document.getElementById('root')).render(<App />)
-    </script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+  <title>IFX ∞</title>
+  <style>
+    body,html{margin:0;height:100%;background:#000;color:#0ff;font-family:system-ui}
+    *{box-sizing:border-box}
+    button{cursor:pointer}
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="module">
+    import React from 'https://esm.sh/react@18'
+    import ReactDOM from 'https://esm.sh/react-dom@18/client'
+    import { IDKitWidget } from 'https://esm.sh/@worldcoin/idkit'
+    import { ethers } from 'https://esm.sh/ethers@6'
+
+    const IFX = "0xebe8eA000BC7b51b05070003B07c0fEeB855A140"
+    const UNO = "https://uno.world/swap"
+
+    function App() {
+      const [ok, setOk] = React.useState(false)
+      const [wallet, setWallet] = React.useState('')
+
+      const connect = async () => {
+        if (!window.ethereum) return alert("Instala World App")
+        const provider = new ethers.BrowserProvider(window.ethereum)
+        await provider.send("eth_requestAccounts", [])
+        const addr = await (await provider.getSigner()).getAddress()
+        setWallet(addr.slice(0,6)+"..."+addr.slice(-4))
+      }
+
+      return (
+        <div style={{minHeight:'100vh',padding:'30px',textAlign:'center'}}>
+          <h1 style={{fontSize:'80px',margin:'20px 0'}}>∞ IFX</h1>
+          <p style={{fontSize:'24px',color:'#0af'}}>InfinichainX • Worldchain</p>
+
+          {!ok ? (
+            <div style={{marginTop:'150px'}}>
+              <IDKitWidget app_id="app_staging_00000000000000000000000000000000" action="login" onSuccess={()=>setOk(true)}>
+                {({open})=><button onClick={open} style={{background:'#0ff',color:'#000',padding:'20px 60px',fontSize:'28px',border:'none',borderRadius:'20px'}}>
+                  LOGIN WORLD ID
+                </button>}
+              </IDKitWidget>
+            </div>
+          ) : (
+            <>
+              <p style={{color:'#0f0',fontSize:'22px'}}>Verificado</p>
+              <button onClick={connect} style={{background:'transparent',border:'3px solid #0ff',color:'#0ff',padding:'15px 35px',borderRadius:'15px',fontSize:'18px'}}>
+                {wallet || "CONECTAR WALLET"}
+              </button>
+
+              <div style={{margin:'60px auto',maxWidth:'420px',display:'grid',gap:'25px'}}>
+                <a href={`${UNO}?output=${IFX}`} style={{background:'linear-gradient(135deg,#0ff,#00a)',color:'#000',padding:'35px',borderRadius:'25px',fontSize:'28px',fontWeight:'bold',textDecoration:'none'}}>
+                  SWAP IFX
+                </a>
+                <div style={{background:'#111',padding:'35px',borderRadius:'25px',border:'3px solid #0ff'}}>
+                  <p style={{margin:0,fontSize:'22px'}}>Launchpad propio</p>
+                  <small>24h</small>
+                </div>
+                <div style={{background:'#111',padding:'35px',borderRadius:'25px',border:'3px solid #0ff'}}>
+                  <p style={{margin:0,fontSize:'22px'}}>Staking + 70% fees</p>
+                  <small>próximas horas</small>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      )
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />)
+  </script>
+</body>
 </html>
